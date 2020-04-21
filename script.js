@@ -1,6 +1,6 @@
 window.onload = () => {
   const FPS = 4;
-  const PAGE_SCALE = 0.6
+  const PAGE_SCALE = 0.6;
   let currentPage = 0;
   let currentChapter = 0;
 
@@ -64,18 +64,23 @@ window.onload = () => {
     nextPageElement.classList.add("toolBarButtons");
     nextPageElement.textContent = "Next";
     document.querySelector("#bottonToolBar").prepend(nextPageElement);
-    //Chapter Viewer
-    chapterView.id = "chapterViewer";
-    chapterView.classList.add("mm");
-    chapterView.classList.add("toolBarButtons");
-    chapterView.textContent = "Chapter 0";
-    document.querySelector("#bottonToolBar").prepend(chapterView);
     //Page Viewer
     pageViewer.id = "pageViewer";
     pageViewer.classList.add("mm");
     pageViewer.classList.add("toolBarButtons");
     pageViewer.textContent = "Page 0";
     document.querySelector("#bottonToolBar").prepend(pageViewer);
+    //Chapter Select
+    const chapterSelect = document.createElement("select");
+    chapterSelect.id = "chapter-select";
+    chapterSelect.classList.add("mm");
+    document.querySelector("#bottonToolBar").prepend(chapterSelect);
+    //Chapter Viewer
+    chapterView.id = "chapterViewer";
+    chapterView.classList.add("mm");
+    chapterView.classList.add("toolBarButtons");
+    chapterView.textContent = "Chapter 0";
+    document.querySelector("#bottonToolBar").prepend(chapterView);
     // Previous Page
     const previousPageElement = document.createElement("button");
     previousPageElement.id = "previous";
@@ -90,10 +95,10 @@ window.onload = () => {
     if (!hasMangaAlreadyBeenOpened) {
       openManga();
     }
-    if(panelElement.classList.contains("hidden")){
-      document.body.style.overflow = 'hidden';
+    if (panelElement.classList.contains("hidden")) {
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'scroll';
+      document.body.style.overflow = "scroll";
     }
     panelElement.classList.toggle("hidden");
     hasMangaAlreadyBeenOpened = true;
@@ -101,18 +106,21 @@ window.onload = () => {
 
   function openManga() {
     let intervalID;
-    
+
     video = document.querySelector("video");
     if (!video) {
       console.log("VIDEO NÃO ENCONTRADO NESSA PÁGINA.");
       return;
     }
-    
-    const config = getConfig()
-    
+
+    const config = getConfig();
+
+    loadChapterToSelect(config.chapters);
+
     currentPage = Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS);
     video.currentTime = (1 / FPS) * currentPage + 1 / (FPS * 2);
 
+    document.querySelector("#chapter-select").addEventListener("change", selectedChapter);
     video.addEventListener("play", play);
     video.addEventListener("pause", pause);
     video.addEventListener("seeked", seeked);
@@ -132,7 +140,8 @@ window.onload = () => {
     function GetCanvas(id) {
       const canvas = document.createElement("canvas");
       canvas.id = id;
-      var body = document.body, html = document.documentElement;
+      var body = document.body,
+        html = document.documentElement;
 
       var Width = Math.max(
         body.scrollWidth,
@@ -141,7 +150,7 @@ window.onload = () => {
         html.scrollWidth,
         html.offsetWidth
       );
-      canvas.height = Width * PAGE_SCALE
+      canvas.height = Width * PAGE_SCALE;
       canvas.width = (cWidth / cHeigth) * canvas.height;
       canvas.style.left = `calc(50% - ${canvas.width / 2}px)`;
       canvas.style.top = `calc((${canvas.width}px - ${canvas.height}px) / 2)`;
@@ -151,7 +160,7 @@ window.onload = () => {
 
     function play() {
       console.log("Play");
-      resizeCanvas()
+      resizeCanvas();
       video.play();
       intervalID = setInterval(update, 1000 / 60.0);
     }
@@ -160,7 +169,7 @@ window.onload = () => {
       console.log("Pause");
       video.pause();
 
-      resizeCanvas()
+      resizeCanvas();
       DrawCanvas();
 
       clearInterval(intervalID);
@@ -181,7 +190,7 @@ window.onload = () => {
       currentPage = Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS);
       console.log(`Move to page: ${currentPage + 1}`);
       video.currentTime = (1 / FPS) * (currentPage - 1) + 1 / (FPS * 2);
-      currentPage =  Math.max(
+      currentPage = Math.max(
         0,
         Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS)
       );
@@ -191,7 +200,7 @@ window.onload = () => {
     function seeked() {
       currentPage = getCurrentPage();
       pageViewer.textContent = `Page ${currentPage}`;
-      currentChapter = getCurrentChapter()
+      currentChapter = getCurrentChapter();
       chapterView.textContent = `Chapter ${currentChapter + 1}`;
       DrawCanvas();
     }
@@ -200,24 +209,25 @@ window.onload = () => {
       var page = Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS);
       page = Math.max(0, page);
       page = Math.min(Math.floor(video.getDuration() * FPS) - 1, page);
-      return page
+      return page;
     }
 
-    function getCurrentChapter(){
-      if(config.chapters){
-        let sum = 0
+    function getCurrentChapter() {
+      if (config.chapters) {
+        let sum = 0;
         for (let index = 1; index < config.chapters.length; index++) {
-          if(currentPage > sum && currentPage < sum + config.chapters[index]){
-            return index - 1
+          if (currentPage > sum && currentPage < sum + config.chapters[index]) {
+            return index - 1;
           }
           sum += config.chapters[index];
         }
       }
-      return 0
+      return 0;
     }
 
-    function resizeCanvas(){
-      var body = document.body, html = document.documentElement;
+    function resizeCanvas() {
+      var body = document.body,
+        html = document.documentElement;
 
       var Width = Math.max(
         body.scrollWidth,
@@ -226,7 +236,7 @@ window.onload = () => {
         html.scrollWidth,
         html.offsetWidth
       );
-      canvas.height = Width * PAGE_SCALE
+      canvas.height = Width * PAGE_SCALE;
       canvas.width = (cWidth / cHeigth) * canvas.height;
       canvas.style.left = `calc(50% - ${canvas.width / 2}px)`;
       canvas.style.top = `calc((${canvas.width}px - ${canvas.height}px) / 2)`;
@@ -239,23 +249,54 @@ window.onload = () => {
     function update() {
       if (!(video.paused | video.ended)) {
         DrawCanvas();
-        currentPage = getCurrentPage()
+        currentPage = getCurrentPage();
         pageViewer.textContent = `Page ${currentPage}`;
-        currentChapter = getCurrentChapter()
+        currentChapter = getCurrentChapter();
         chapterView.textContent = `Chapter ${currentChapter + 1}`;
       }
     }
 
-    function getConfig(){
-      const description = document.querySelector("#description").textContent
-      if(!description) return ""
-      const c = description.split('[[[')[1].split("]]]")[0]
+    function getConfig() {
+      const description = document.querySelector("#description").textContent;
+      if (!description) return "";
+      const c = description.split("[[[")[1].split("]]]")[0];
       try {
-          return JSON.parse(c)
+        return JSON.parse(c);
       } catch (error) {
-          console.log("ERROR: Informações de configuração não encontradas na descrição.")
-          return ""
-      } 
+        console.log(
+          "ERROR: Informações de configuração não encontradas na descrição."
+        );
+        return "";
+      }
+    }
+
+    function loadChapterToSelect(chapters){
+      if(!chapters || !chapters.length) return
+      let select = document.querySelector("#chapter-select")
+      chapters.forEach((chapter, index) => {
+        let option = document.createElement("option")
+        option.value = index
+        option.text = index + 1
+        select.appendChild(option)
+      });
+
+    }
+    function selectedChapter(){
+      let select = document.querySelector("#chapter-select")
+      currentPage = chapterToPage(select.value)
+      video.currentTime = (1 / FPS) * (currentPage - 1) + 1 / (FPS * 2);
+      console.log(select.value)
+    }
+    function chapterToPage(chapter){
+      let sum = 0
+      for (let index = 1; index < chapter; index++) {
+        sum += config.chapters[index];
+      }
+      return sum
+    }
+
   }
-  }
+  
+
+  
 };
