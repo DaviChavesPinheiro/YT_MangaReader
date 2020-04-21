@@ -1,7 +1,8 @@
 window.onload = () => {
   const FPS = 4;
-  const PAGE_SCALE = 0.8
+  const PAGE_SCALE = 0.6
   let currentPage = 0;
+  let currentChapter = 0;
 
   let video;
 
@@ -12,6 +13,7 @@ window.onload = () => {
   const closeElement = document.createElement("button");
   const bottonToolBarElement = document.createElement("div");
   const pageViewer = document.createElement("div");
+  const chapterView = document.createElement("div");
 
   createReadElement();
   createPanelElement();
@@ -62,6 +64,12 @@ window.onload = () => {
     nextPageElement.classList.add("toolBarButtons");
     nextPageElement.textContent = "Next";
     document.querySelector("#bottonToolBar").prepend(nextPageElement);
+    //Chapter Viewer
+    chapterView.id = "chapterViewer";
+    chapterView.classList.add("mm");
+    chapterView.classList.add("toolBarButtons");
+    chapterView.textContent = "Chapter 0";
+    document.querySelector("#bottonToolBar").prepend(chapterView);
     //Page Viewer
     pageViewer.id = "pageViewer";
     pageViewer.classList.add("mm");
@@ -82,19 +90,26 @@ window.onload = () => {
     if (!hasMangaAlreadyBeenOpened) {
       openManga();
     }
+    if(panelElement.classList.contains("hidden")){
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'scroll';
+    }
     panelElement.classList.toggle("hidden");
     hasMangaAlreadyBeenOpened = true;
   }
 
   function openManga() {
     let intervalID;
-
+    
     video = document.querySelector("video");
     if (!video) {
       console.log("VIDEO NÃO ENCONTRADO NESSA PÁGINA.");
       return;
     }
-
+    
+    const config = getConfig()
+    
     currentPage = Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS);
     video.currentTime = (1 / FPS) * currentPage + 1 / (FPS * 2);
 
@@ -174,15 +189,31 @@ window.onload = () => {
     }
 
     function seeked() {
-      getCurrentPage();
+      currentPage = getCurrentPage();
       pageViewer.textContent = `Page ${currentPage}`;
+      currentChapter = getCurrentChapter()
+      chapterView.textContent = `Chapter ${currentChapter + 1}`;
       DrawCanvas();
     }
 
     function getCurrentPage() {
-      currentPage = Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS);
-      currentPage = Math.max(0, Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS));
-      currentPage = Math.min(Math.floor(video.getDuration() * FPS) - 1, Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS));
+      var page = Math.floor((video.getCurrentTime() - 1 / (FPS * 2)) * FPS);
+      page = Math.max(0, page);
+      page = Math.min(Math.floor(video.getDuration() * FPS) - 1, page);
+      return page
+    }
+
+    function getCurrentChapter(){
+      if(config.chapters){
+        let sum = 0
+        for (let index = 1; index < config.chapters.length; index++) {
+          if(currentPage > sum && currentPage < sum + config.chapters[index]){
+            return index - 1
+          }
+          sum += config.chapters[index];
+        }
+      }
+      return 0
     }
 
     function resizeCanvas(){
@@ -208,9 +239,23 @@ window.onload = () => {
     function update() {
       if (!(video.paused | video.ended)) {
         DrawCanvas();
-        getCurrentPage()
+        currentPage = getCurrentPage()
         pageViewer.textContent = `Page ${currentPage}`;
+        currentChapter = getCurrentChapter()
+        chapterView.textContent = `Chapter ${currentChapter + 1}`;
       }
     }
+
+    function getConfig(){
+      const description = document.querySelector("#description").textContent
+      if(!description) return ""
+      const c = description.split('[[[')[1].split("]]]")[0]
+      try {
+          return JSON.parse(c)
+      } catch (error) {
+          console.log("ERROR: Informações de configuração não encontradas na descrição.")
+          return ""
+      } 
+  }
   }
 };
