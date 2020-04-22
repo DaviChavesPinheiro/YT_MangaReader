@@ -33,7 +33,7 @@
     display: none !important;
 }
 
-.mm.panel {
+.mm.mangaReaderElement {
     background: rgba(28,28,28,0.8);
     position: absolute;
     z-index: 9999997;
@@ -42,13 +42,15 @@
     overflow-y: scroll;
 }
 
-.mm#toolBar{
-    position: absolute;
+.mm#topToolBar{
+    position: fixed;
     z-index: 9999999;
     right: 0px;
+    left: 0px;
     top: 0px;
     display: flex;
     flex-direction: row;
+    justify-content: center;
     padding: 10px;
     flex-wrap: nowrap;
     background-color:  rgba(28,28,28,0.4);
@@ -58,21 +60,10 @@
     font-size: 2rem;
     position: relative;
     color: white;
+    align-self: flex-end;
 }
 
-.mm#bottonToolBar{
-    position: fixed;
-    z-index: 9999999;
-    right: 0px;
-    left: 0px;
-    bottom: 0px;
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    padding: 10px;
-    flex-wrap: nowrap;
-    background-color:  rgba(28,28,28,0.8);
-}
+
 .mm.toolBarButtons {
     font-size: 2rem;
     color: white;

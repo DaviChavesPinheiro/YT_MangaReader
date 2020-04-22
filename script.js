@@ -1,107 +1,38 @@
+const FPS = 4;
+const PAGE_SCALE = 0.6;
+let currentPage = 0;
+let currentChapter = 0;
+let isReaderOpen = false
+
+let video;
+
+let hasMangaAlreadyBeenOpened = false;
+
+let readElement
+let mangaReaderElement
+let TopToolBarElement
+let closeElement
+let bottonToolBarElement
+let nextPageElement
+let chapterSelect
+let previousPageElement
+let pageViewer
+let chapterView
+
+
 window.onload = () => {
-  const FPS = 4;
-  const PAGE_SCALE = 0.6;
-  let currentPage = 0;
-  let currentChapter = 0;
-
-  let video;
-
-  let hasMangaAlreadyBeenOpened = false;
-  const readElement = document.createElement("button");
-  const panelElement = document.createElement("div");
-  const toolBarElement = document.createElement("div");
-  const closeElement = document.createElement("button");
-  const bottonToolBarElement = document.createElement("div");
-  const pageViewer = document.createElement("div");
-  const chapterView = document.createElement("div");
-
-  createReadElement();
-  createPanelElement();
-  createToolBarElement();
-  createCloseElement();
-  createBottonToolBarElement();
+  
+  readElement = createReadElement();
 
   function createReadElement() {
-    readElement.id = "read";
-    readElement.classList.add("mm");
-    readElement.classList.add("button");
-    readElement.textContent = "READ";
-    readElement.addEventListener("click", read);
-    document
-      .querySelector(".ytp-chrome-controls .ytp-right-controls")
-      .prepend(readElement);
-  }
-  function createPanelElement() {
-    panelElement.id = "panel";
-    panelElement.classList.add("mm");
-    panelElement.classList.add("panel");
-    panelElement.classList.add("hidden");
-    document.querySelector("body").append(panelElement);
-  }
-  function createToolBarElement() {
-    toolBarElement.id = "toolBar";
-    toolBarElement.classList.add("mm");
-    document.querySelector("#panel").prepend(toolBarElement);
-  }
-  function createCloseElement() {
-    closeElement.id = "close";
-    closeElement.classList.add("mm");
-    closeElement.classList.add("button");
-    closeElement.textContent = "X";
-    closeElement.addEventListener("click", read);
-    document.querySelector("#toolBar").prepend(closeElement);
-  }
-  function createBottonToolBarElement() {
-    bottonToolBarElement.id = "bottonToolBar";
-    bottonToolBarElement.classList.add("mm");
-    document.querySelector("#panel").prepend(bottonToolBarElement);
-
-    // Next Page
-    const nextPageElement = document.createElement("button");
-    nextPageElement.id = "next";
-    nextPageElement.classList.add("mm");
-    nextPageElement.classList.add("button");
-    nextPageElement.classList.add("toolBarButtons");
-    nextPageElement.textContent = "Next";
-    document.querySelector("#bottonToolBar").prepend(nextPageElement);
-    //Page Viewer
-    pageViewer.id = "pageViewer";
-    pageViewer.classList.add("mm");
-    pageViewer.classList.add("toolBarButtons");
-    pageViewer.textContent = "Page 0";
-    document.querySelector("#bottonToolBar").prepend(pageViewer);
-    //Chapter Select
-    const chapterSelect = document.createElement("select");
-    chapterSelect.id = "chapter-select";
-    chapterSelect.classList.add("mm");
-    document.querySelector("#bottonToolBar").prepend(chapterSelect);
-    //Chapter Viewer
-    chapterView.id = "chapterViewer";
-    chapterView.classList.add("mm");
-    chapterView.classList.add("toolBarButtons");
-    chapterView.textContent = "Chapter 0";
-    document.querySelector("#bottonToolBar").prepend(chapterView);
-    // Previous Page
-    const previousPageElement = document.createElement("button");
-    previousPageElement.id = "previous";
-    previousPageElement.classList.add("mm");
-    previousPageElement.classList.add("button");
-    previousPageElement.classList.add("toolBarButtons");
-    previousPageElement.textContent = "Previous";
-    document.querySelector("#bottonToolBar").prepend(previousPageElement);
-  }
-
-  function read() {
-    if (!hasMangaAlreadyBeenOpened) {
-      openManga();
-    }
-    if (panelElement.classList.contains("hidden")) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "scroll";
-    }
-    panelElement.classList.toggle("hidden");
-    hasMangaAlreadyBeenOpened = true;
+    const read = document.createElement("button");
+    read.id = "read";
+    read.classList.add("mm");
+    read.classList.add("button");
+    read.textContent = "READ";
+    read.addEventListener("click", startReader);
+    document.querySelector(".ytp-chrome-controls .ytp-right-controls").prepend(read);
+    return read
   }
 
   function openManga() {
@@ -154,7 +85,7 @@ window.onload = () => {
       canvas.width = (cWidth / cHeigth) * canvas.height;
       canvas.style.left = `calc(50% - ${canvas.width / 2}px)`;
       canvas.style.top = `calc((${canvas.width}px - ${canvas.height}px) / 2)`;
-      panelElement.appendChild(canvas);
+      mangaReaderElement.appendChild(canvas);
       return canvas;
     }
 
@@ -300,3 +231,83 @@ window.onload = () => {
 
   
 };
+
+function startReader() {
+  if (!hasMangaAlreadyBeenOpened) {
+    createMangaReaderElement()
+
+    // openManga();
+    hasMangaAlreadyBeenOpened = true;
+  }
+  if(isReaderOpen) {
+    // Close MangaReader
+    mangaReaderElement.classList.add("hidden")
+    document.body.style.overflow = "scroll";
+  } else {
+    // Open MangaReader
+    mangaReaderElement.classList.remove("hidden")
+    document.body.style.overflow = "hidden";
+  }
+
+  isReaderOpen = !isReaderOpen
+}
+
+function createMangaReaderElement() {
+  //MangaReaderElement
+  mangaReaderElement = document.createElement("div");
+  mangaReaderElement.id = "mangaReaderElement";
+  mangaReaderElement.classList.add("mm");
+  mangaReaderElement.classList.add("mangaReaderElement");
+  mangaReaderElement.classList.add("hidden");
+  document.querySelector("body").append(mangaReaderElement);
+  //TopToolBarElement
+  topToolBar = document.createElement("div");
+  topToolBar.id = "topToolBar";
+  topToolBar.classList.add("mm");
+  topToolBar.classList.add("toolBar");
+  document.querySelector("#mangaReaderElement").prepend(topToolBar);
+  // Previous Page
+  previousPageElement = document.createElement("button");
+  previousPageElement.id = "previous";
+  previousPageElement.classList.add("mm");
+  previousPageElement.classList.add("button");
+  previousPageElement.classList.add("toolBarButtons");
+  previousPageElement.textContent = "Previous";
+  topToolBar.appendChild(previousPageElement);
+  //Chapter Viewer
+  chapterView = document.createElement("div");
+  chapterView.id = "chapterViewer";
+  chapterView.classList.add("mm");
+  chapterView.classList.add("toolBarButtons");
+  chapterView.textContent = "Chapter 0";
+  topToolBar.appendChild(chapterView);
+  //Chapter Select
+  chapterSelect = document.createElement("select");
+  chapterSelect.id = "chapter-select";
+  chapterSelect.classList.add("mm");
+  topToolBar.appendChild(chapterSelect);
+  //Page Viewer
+  pageViewer = document.createElement("div");
+  pageViewer.id = "pageViewer";
+  pageViewer.classList.add("mm");
+  pageViewer.classList.add("toolBarButtons");
+  pageViewer.textContent = "Page 0";
+  topToolBar.appendChild(pageViewer);
+  // Next Page
+  nextPageElement = document.createElement("button");
+  nextPageElement.id = "next";
+  nextPageElement.classList.add("mm");
+  nextPageElement.classList.add("button");
+  nextPageElement.classList.add("toolBarButtons");
+  nextPageElement.textContent = "Next";
+  topToolBar.appendChild(nextPageElement);
+  //CloseElement
+  closeElement = document.createElement("button");
+  closeElement.id = "close";
+  closeElement.classList.add("mm");
+  closeElement.classList.add("button");
+  closeElement.textContent = "X";
+  closeElement.addEventListener("click", read);
+  topToolBar.appendChild(closeElement);
+  
+}
